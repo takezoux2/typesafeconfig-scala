@@ -2,6 +2,7 @@ package com.geishatokyo.typesafeconfig.lax
 
 import scala.reflect.runtime.universe._
 import com.geishatokyo.typesafeconfig.TSConfig
+import scala.concurrent.duration.Duration
 
 /**
  * Created by takezoux2 on 2014/06/13.
@@ -25,6 +26,7 @@ object LaxTSNone extends LaxTSConfig {
       case t if t =:= typeOf[Long] => LaxDefaults.long
       case t if t =:= typeOf[Double] => LaxDefaults.double
       case t if t =:= typeOf[Boolean] => LaxDefaults.boolean
+      case t if t =:= typeOf[Duration] => Duration.fromNanos(0)
       case t if t =:= typeOf[String] => LaxDefaults.string
       case t if t <:< typeOf[Option[_]] => None
       case t if t <:< typeOf[List[_]] => Nil

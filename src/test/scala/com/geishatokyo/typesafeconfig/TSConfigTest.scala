@@ -3,6 +3,8 @@ package com.geishatokyo.typesafeconfig
 import org.scalatest.{Matchers, FlatSpec}
 import scala.reflect.runtime._
 import scala.reflect.runtime.universe._
+import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 
 /**
  * Created by takezoux2 on 2014/06/13.
@@ -30,7 +32,8 @@ class TSConfigTest extends FlatSpec with Matchers{
         |  skills : {
         |    fireBall : { attack : 30},
         |    shield : {defence : 40}
-        |  }
+        |  },
+        |  loginSpan : "10 days"
         |}
         |
       """.stripMargin)
@@ -47,12 +50,13 @@ class TSConfigTest extends FlatSpec with Matchers{
       Map(
         "fireBall" -> Skill(Some(30),None),
         "shield" -> Skill(None,Some(40))
-      )
+      ),
+      10 days
     ) )
   }
 }
 
-case class User(id : Long,name : String,age : Int,roles : List[String], avatar : Avatar,items : List[Item],skills : Map[String,Skill])
+case class User(id : Long,name : String,age : Int,roles : List[String], avatar : Avatar,items : List[Item],skills : Map[String,Skill],loginSpan : Duration)
 case class Avatar(head : String,body : String)
 case class Item(name : String, price : Int = 10)
 case class Skill(attack : Option[Int],defence : Option[Int])

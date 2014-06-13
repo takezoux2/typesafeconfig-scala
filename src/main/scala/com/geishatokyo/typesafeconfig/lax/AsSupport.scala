@@ -4,6 +4,7 @@ import com.geishatokyo.typesafeconfig.TSConfig
 import scala.reflect.runtime.universe._
 import com.typesafe.config.Config
 import scala.collection.JavaConverters._
+import scala.concurrent.duration.Duration
 
 /**
  * Created by takezoux2 on 2014/06/13.
@@ -59,6 +60,9 @@ trait AsSupport { self : TSConfig =>
         return keys.map(key => {
           key -> (this / key).as(valueType)
         }).toMap
+      }
+      case t if t =:= typeOf[Duration] => {
+        return Duration(config.getString(key))
       }
       case _ =>
     }

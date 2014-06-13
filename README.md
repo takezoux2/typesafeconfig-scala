@@ -33,6 +33,7 @@ scala
 * Double
 * Boolean
 * String
+* Duration
 * Case class
 
 and 
