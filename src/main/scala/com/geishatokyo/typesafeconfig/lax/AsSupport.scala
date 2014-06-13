@@ -1,12 +1,9 @@
-package com.geishatokyo.typesafeconfig.reflect
+package com.geishatokyo.typesafeconfig.lax
 
 import com.geishatokyo.typesafeconfig.TSConfig
-import scala.reflect._
-import scala.reflect.runtime._
 import scala.reflect.runtime.universe._
 import com.typesafe.config.Config
 import scala.collection.JavaConverters._
-import com.geishatokyo.typesafeconfig.lax.LaxDefaults
 
 /**
  * Created by takezoux2 on 2014/06/13.
@@ -59,7 +56,6 @@ trait AsSupport { self : TSConfig =>
       case t if t <:< typeOf[Set[_]] => return this.asList.map(_.as(t.typeArgs(0))).toSet
       case t if t <:< typeOf[Map[String,_]] => {
         val valueType = t.typeArgs(1)
-        println("vt:" + valueType)
         return keys.map(key => {
           println(key)
           key -> (this / key).as(valueType)
@@ -68,11 +64,6 @@ trait AsSupport { self : TSConfig =>
       case _ =>
     }
 
-    if(tpe <:< typeOf[List[_]]){
-      println("List type")
-      return Nil
-
-    }
 
     // map classes
     val constructor = tpe.members.collectFirst({
@@ -80,9 +71,40 @@ trait AsSupport { self : TSConfig =>
     }).getOrElse({
       throw new Exception("Can't find primary constructor in " + tpe)
     })
-    val constructorParams = constructor.paramss.flatMap(_.map(p => {
-      (this / p.name.encodedName.toString).as(p.typeSignature)
-    }))
+    var index = 0
+    lazy val companionInstanceMirror = {
+      val module = mirror.reflectModule(tpe.typeSymbol.companion.asModule).instance
+      mirror.reflect(module)
+    }
+
+    def getDefaultValue(index : Int) = {
+
+      val dfltMName = {
+        import scala.reflect.runtime.universe
+        import scala.reflect.internal._
+        val ds = universe.asInstanceOf[Definitions with SymbolTable with StdNames]
+        ds.nme.defaultGetterName(ds.newTermName("apply"),index + 1)
+      }
+      tpe.companion.decl(TermName(dfltMName.encoded)) match{
+        case m : MethodSymbol => {
+          Some(companionInstanceMirror.reflectMethod(m).apply())
+        }
+        case _ => None
+      }
+    }
+
+    val constructorParams = constructor.paramss.flatten.zipWithIndex.map({
+      case (p,index) => {
+        val v = (this / p.name.encodedName.toString)
+        if(v.exists) v.as(p.typeSignature)
+        else {
+          getDefaultValue(index) match{
+            case Some(v) => v
+            case None => v.as(p.typeSignature)
+          }
+        }
+      }
+    })
     val classMirror = mirror.reflectClass(tpe.typeSymbol.asClass)
     val instance = classMirror.reflectConstructor(constructor)(constructorParams :_*)
 

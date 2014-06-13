@@ -2,13 +2,14 @@ package com.geishatokyo.typesafeconfig.lax
 
 import com.geishatokyo.typesafeconfig.{TSNone, TSConfig}
 import com.typesafe.config.Config
-import com.geishatokyo.typesafeconfig.reflect.AsSupport
 import scala.reflect._
 import scala.reflect.runtime._
 import scala.reflect.runtime.universe._
 import scala.collection.JavaConverters._
 
 /**
+ * 極力例外を発生させない実装
+ * Keyが無い場合は、LaxDefaultsの値が使用される
  * Created by takezoux2 on 2014/06/13.
  */
 trait LaxTSConfig extends TSConfig {

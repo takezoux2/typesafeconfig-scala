@@ -1,5 +1,6 @@
 package com.geishatokyo.typesafeconfig.lax
 
+
 /**
  * Created by takezoux2 on 2014/06/13.
  */
@@ -10,5 +11,6 @@ object LaxDefaults {
   var string = ""
   var double = 0.0
   var boolean = false
+
 
 }

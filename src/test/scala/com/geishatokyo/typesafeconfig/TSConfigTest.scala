@@ -10,7 +10,7 @@ import scala.reflect.runtime.universe._
 class TSConfigTest extends FlatSpec with Matchers{
 
 
-  "" should "" in {
+  "Normal usage" should "be" in {
 
     val conf = TSConfigFactory.lax.parseString(
       """
@@ -43,7 +43,7 @@ class TSConfigTest extends FlatSpec with Matchers{
     assert( conf.as[User] == User(222,"Tom",23,
       List("admin","user"),
       Avatar("afro","normal"),
-      List(Item("stone",0),Item("potion",100)),
+      List(Item("stone",10),Item("potion",100)),
       Map(
         "fireBall" -> Skill(Some(30),None),
         "shield" -> Skill(None,Some(40))
@@ -54,5 +54,5 @@ class TSConfigTest extends FlatSpec with Matchers{
 
 case class User(id : Long,name : String,age : Int,roles : List[String], avatar : Avatar,items : List[Item],skills : Map[String,Skill])
 case class Avatar(head : String,body : String)
-case class Item(name : String, price : Int)
+case class Item(name : String, price : Int = 10)
 case class Skill(attack : Option[Int],defence : Option[Int])
