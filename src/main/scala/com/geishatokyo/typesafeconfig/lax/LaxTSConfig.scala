@@ -1,7 +1,7 @@
 package com.geishatokyo.typesafeconfig.lax
 
-import com.geishatokyo.typesafeconfig.{TSNone, TSConfig}
-import com.typesafe.config.Config
+import com.geishatokyo.typesafeconfig.{TSConfig}
+import com.typesafe.config.{ConfigException, Config}
 import scala.reflect._
 import scala.reflect.runtime._
 import scala.reflect.runtime.universe._
@@ -14,6 +14,9 @@ import scala.collection.JavaConverters._
  */
 trait LaxTSConfig extends TSConfig {
 
+  def as[T: universe.TypeTag]: T = {
+    get[T].getOrElse(null.asInstanceOf[T])
+  }
 }
 
 case class LaxTSConfigWithKey(config : Config,key : String) extends LaxTSConfig with AsSupport{
@@ -36,7 +39,7 @@ case class LaxTSConfigWithKey(config : Config,key : String) extends LaxTSConfig 
     if(exists){
       LaxTSConfigWithKey(config.getConfig(this.key),key)
     }else{
-      TSNone
+      LaxTSNone
     }
   }
 
@@ -44,9 +47,6 @@ case class LaxTSConfigWithKey(config : Config,key : String) extends LaxTSConfig 
     config.hasPath(key)
   }
 
-  override def as[T: universe.TypeTag]: T = {
-    get[T].getOrElse(null.asInstanceOf[T])
-  }
   override def asList[T: TypeTag]: List[T] = {
     asList.map(c => {
       c.as[T]
@@ -55,7 +55,13 @@ case class LaxTSConfigWithKey(config : Config,key : String) extends LaxTSConfig 
 
   override def asList: List[TSConfig] = {
     if(exists){
-      config.getConfigList(key).asScala.toList.map(c => LaxTSConfigRoot(c))
+      try {
+        config.getConfigList(key).asScala.toList.map(c => LaxTSConfigRoot(c))
+      }catch{
+        case e : ConfigException => {
+          Nil
+        }
+      }
     }else{
       Nil
     }
@@ -87,7 +93,7 @@ case class LaxTSConfigRoot(config : Config) extends LaxTSConfig with AsSupport{
     if(exists){
       LaxTSConfigWithKey(config,key)
     }else{
-      TSNone
+      LaxTSNone
     }
   }
 
@@ -95,9 +101,6 @@ case class LaxTSConfigRoot(config : Config) extends LaxTSConfig with AsSupport{
     true
   }
 
-  override def as[T: universe.TypeTag]: T = {
-    get[T].getOrElse(null.asInstanceOf[T])
-  }
   override def asList[T: TypeTag]: List[T] = {
     asList.map(c => {
       c.as[T]

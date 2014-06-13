@@ -31,20 +31,6 @@ trait TSConfig {
 
 }
 
-object TSNone extends TSConfig{
-  override def /(key: String): TSConfig = TSNone
-
-  override def get[T: TypeTag]: Option[T] = None
-
-  override def exists: Boolean = false
-  override def keys = Nil
-
-  override def asList[T: TypeTag]: List[T] = Nil
-  override def as[T: TypeTag]: T = null.asInstanceOf[T]
-  override def as(t : Type)(implicit mirror : Mirror) : Any = null.asInstanceOf[Any]
-
-  override def asList: List[TSConfig] = Nil
-}
 
 
 

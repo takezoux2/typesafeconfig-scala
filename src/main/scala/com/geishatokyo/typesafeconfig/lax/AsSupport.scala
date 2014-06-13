@@ -57,13 +57,11 @@ trait AsSupport { self : TSConfig =>
       case t if t <:< typeOf[Map[String,_]] => {
         val valueType = t.typeArgs(1)
         return keys.map(key => {
-          println(key)
           key -> (this / key).as(valueType)
         }).toMap
       }
       case _ =>
     }
-
 
     // map classes
     val constructor = tpe.members.collectFirst({
