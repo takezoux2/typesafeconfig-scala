@@ -2,7 +2,7 @@ package com.geishatokyo.typesafeconfig.impl
 
 import com.geishatokyo.typesafeconfig.{Env, TSConfig}
 import scala.reflect.runtime.universe._
-import com.typesafe.config.Config
+import com.typesafe.config.{ConfigException, Config}
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
 import java.util.Date
@@ -33,9 +33,13 @@ trait AsSupport { self : TSConfig =>
           defaultValue
         })
       }catch{
-        case e : Throwable => {
-          //e.printStackTrace()
+        case e : ConfigException => {
+          println(e.getMessage)
           defaultValue
+        }
+        case e : Throwable => {
+          e.printStackTrace()
+          defaultValue()
         }
       }
     }

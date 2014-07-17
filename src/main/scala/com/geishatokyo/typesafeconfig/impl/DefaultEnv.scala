@@ -38,7 +38,7 @@ class DefaultEnv extends Env{
     case t if t <:< typeOf[Map[_,_]] => Map.empty
     case t if t <:< typeOf[Option[_]] => None
     case t => {
-      println("Default of " + t)
+      //println("Default of " + t)
       null
     }
   }

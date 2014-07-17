@@ -15,6 +15,17 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.0" % "test" 
 )
 
+
 libraryDependencies <++= (scalaVersion)(projectScalaVersion => {
   Seq("org.scala-lang" % "scala-reflect" % projectScalaVersion)
+})
+
+
+unmanagedSourceDirectories in Compile <++= (baseDirectory,scalaVersion)((dir,sVersion) => {
+  sVersion match{
+    case v if v.startsWith("2.10") => {
+      Seq(dir / "src" / "main" / "scala2.10")
+    }
+    case _ => Seq()
+  }
 })

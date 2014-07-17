@@ -48,11 +48,11 @@ class SuccessPatternTest extends FlatSpec with Matchers {
     DefaultEnv.string = "Default string"
     val conf = TSConfigFactory.parseString("""{a:2121}""")
 
-    val a = conf.as[A]
-    assert(a == A(2121,DefaultEnv.string,10.0))
+    val a = conf.as[ABC]
+    assert(a == ABC(2121,DefaultEnv.string,10.0))
 
   }
 
 }
 
-case class A(a : Int , b : String , c : Double = 10.0)
+case class ABC(a : Int , b : String , c : Double = 10.0)
