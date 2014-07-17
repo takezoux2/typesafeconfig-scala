@@ -9,12 +9,12 @@ import scala.concurrent.duration._
 /**
  * Created by takezoux2 on 2014/06/13.
  */
-class TSConfigTest extends FlatSpec with Matchers{
+class UsageSample extends FlatSpec with Matchers{
 
 
   "Normal usage" should "be" in {
 
-    val conf = TSConfigFactory.lax.parseString(
+    val conf = TSConfigFactory.parseString(
       """
         |{
         |  id : 222,

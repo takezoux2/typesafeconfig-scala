@@ -1,33 +1,33 @@
-package com.geishatokyo.typesafeconfig.lax
+package com.geishatokyo.typesafeconfig
 
 import org.scalatest.{Matchers, FlatSpec}
-import com.geishatokyo.typesafeconfig.TSConfigFactory
+import com.geishatokyo.typesafeconfig.impl.DefaultEnv
 
 /**
  * Lax=緩い値解決をするlax系クラスのテスト
  * Created by takezoux2 on 2014/06/13.
  */
-class LaxPatternTest extends FlatSpec with Matchers {
+class SuccessPatternTest extends FlatSpec with Matchers {
 
 
   "Not exist path" should "return exists == false" in {
-    val conf = TSConfigFactory.lax.parseString("""{hoge:fuga}""")
+    val conf = TSConfigFactory.parseString("""{hoge:fuga}""")
 
     assert((conf / "not" / "exists" exists) == false)
 
   }
   "Not exist path" should "cast as default values" in {
-    val conf = TSConfigFactory.lax.parseString("""{hoge:fuga}""")
+    val conf = TSConfigFactory.parseString("""{hoge:fuga}""")
     val v = conf / "not" / "exists"
-    assert(v.asInt == LaxDefaults.int)
-    assert(v.asLong == LaxDefaults.long)
-    assert(v.asString == LaxDefaults.string)
-    assert(v.asBoolean == LaxDefaults.boolean)
-    assert(v.asDouble == LaxDefaults.double)
+    assert(v.asInt == DefaultEnv.int)
+    assert(v.asLong == DefaultEnv.long)
+    assert(v.asString == DefaultEnv.string)
+    assert(v.asBoolean == DefaultEnv.boolean)
+    assert(v.asDouble == DefaultEnv.double)
   }
 
   "Not exist " should "be empty list" in {
-    val conf = TSConfigFactory.lax.parseString("""{hoge:fuga}""")
+    val conf = TSConfigFactory.parseString("""{hoge:fuga}""")
     val v = conf / "not" / "exists"
 
     assert(v.asList == Nil)
@@ -39,19 +39,17 @@ class LaxPatternTest extends FlatSpec with Matchers {
   }
 
   "Wrong type path" should "return any value.(not exception)" in {
-    val conf = TSConfigFactory.lax.parseString("""{notList:fuga}""")
+    val conf = TSConfigFactory.parseString("""{notList:fuga}""")
 
     assert((conf / "notList").asList[String] == Nil)
   }
 
   "Case class" should "set LaxDefaults values to not exist fields" in {
-    LaxDefaults.string = "Default string"
-    val conf = TSConfigFactory.lax.parseString("""{a:2121}""")
+    DefaultEnv.string = "Default string"
+    val conf = TSConfigFactory.parseString("""{a:2121}""")
 
     val a = conf.as[A]
-    assert(a.a == 2121)
-    assert(a.b == LaxDefaults.string)
-    assert(a.c == 10.0)
+    assert(a == A(2121,DefaultEnv.string,10.0))
 
   }
 

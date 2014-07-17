@@ -8,7 +8,7 @@ scala
 
     import com.geishatokyo.typesafeconfig._
     
-    val v = TSConfigFactory.lax.parseString("""
+    val v = TSConfigFactory.parseString("""
       {
         name : "Tom",
         age : 20,
@@ -34,7 +34,9 @@ scala
 * Boolean
 * String
 * Duration
+* java.util.Date
 * Case class
+* TSConf(wrapper class for TypesafeConfig)
 
 and 
 
@@ -43,6 +45,25 @@ and
 * Set[T] of above
 * Seq[T] of above
 * Map[String,T] of case class
+
+# Mapping Map[String,T]
+
+Map as such
+
+    import com.geishatokyo.typesafeconfig._
+    
+    case class Item(attack : Int,defence : Int)
+    
+    val v = TSConfigFactory.parseString("""
+      {
+        weapon : {attack : 20,defence : 10},
+        armor : {attack : 0,defence : 40}
+      }
+    """)
+    
+    assert(v.as[Map[String,Item]] == Map("weapon" -> Item(20,10),"armor" -> Item(0,40))
+    
+
 
 # More codes?
 

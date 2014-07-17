@@ -1,8 +1,7 @@
-package com.geishatokyo.typesafeconfig.lax
+package com.geishatokyo.typesafeconfig.impl
 
-import com.geishatokyo.typesafeconfig.{TSConfig}
+import com.geishatokyo.typesafeconfig.{Env, TSConfig}
 import com.typesafe.config.{ConfigException, Config}
-import scala.reflect._
 import scala.reflect.runtime._
 import scala.reflect.runtime.universe._
 import scala.collection.JavaConverters._
@@ -12,14 +11,7 @@ import scala.collection.JavaConverters._
  * Keyが無い場合は、LaxDefaultsの値が使用される
  * Created by takezoux2 on 2014/06/13.
  */
-trait LaxTSConfig extends TSConfig {
-
-  def as[T: universe.TypeTag]: T = {
-    get[T].getOrElse(null.asInstanceOf[T])
-  }
-}
-
-case class LaxTSConfigWithKey(config : Config,key : String) extends LaxTSConfig with AsSupport{
+case class TSConfigWithKey(config : Config,key : String)(implicit protected val env : Env) extends TSConfig with AsSupport{
 
   def keys = {
     if(exists) {
@@ -37,9 +29,9 @@ case class LaxTSConfigWithKey(config : Config,key : String) extends LaxTSConfig 
 
   override def /(key: String): TSConfig = {
     if(exists){
-      LaxTSConfigWithKey(config.getConfig(this.key),key)
+      TSConfigWithKey(config.getConfig(this.key),key)
     }else{
-      LaxTSNone
+      env.none
     }
   }
 
@@ -47,16 +39,10 @@ case class LaxTSConfigWithKey(config : Config,key : String) extends LaxTSConfig 
     config.hasPath(key)
   }
 
-  override def asList[T: TypeTag]: List[T] = {
-    asList.map(c => {
-      c.as[T]
-    })
-  }
-
   override def asList: List[TSConfig] = {
     if(exists){
       try {
-        config.getConfigList(key).asScala.toList.map(c => LaxTSConfigRoot(c))
+        config.getConfigList(key).asScala.toList.map(c => TSConfigRoot(c))
       }catch{
         case e : ConfigException => {
           Nil
@@ -69,7 +55,7 @@ case class LaxTSConfigWithKey(config : Config,key : String) extends LaxTSConfig 
 
 }
 
-case class LaxTSConfigRoot(config : Config) extends LaxTSConfig with AsSupport{
+case class TSConfigRoot(config : Config)(implicit protected val env : Env) extends TSConfig with AsSupport{
 
 
 
@@ -91,9 +77,9 @@ case class LaxTSConfigRoot(config : Config) extends LaxTSConfig with AsSupport{
 
   override def /(key: String): TSConfig = {
     if(exists){
-      LaxTSConfigWithKey(config,key)
+      TSConfigWithKey(config,key)
     }else{
-      LaxTSNone
+      env.none
     }
   }
 
@@ -101,11 +87,6 @@ case class LaxTSConfigRoot(config : Config) extends LaxTSConfig with AsSupport{
     true
   }
 
-  override def asList[T: TypeTag]: List[T] = {
-    asList.map(c => {
-      c.as[T]
-    })
-  }
 
   override def asList: List[TSConfig] = {
     Nil
